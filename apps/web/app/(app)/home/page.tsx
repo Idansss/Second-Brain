@@ -155,7 +155,20 @@ export default function HomePage() {
       {/* ── Hero greeting ── */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 16 }}>
         <div>
-          <h1 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, letterSpacing: "-0.5px" }}>
+          <h1
+            style={{
+              fontSize: isMobile ? 22 : 28,
+              fontWeight: 900,
+              letterSpacing: "-0.04em",
+              lineHeight: 1.05,
+              fontFamily: '"Inter", "Segoe UI", system-ui, -apple-system, sans-serif',
+              background: "linear-gradient(90deg, #18b8ff 0%, #2f7dff 45%, #7a4dff 100%)",
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+              textShadow: "0 0 16px rgba(79, 126, 255, 0.16)",
+            }}
+          >
             {getGreeting()}, {name} 👋
           </h1>
           <p style={{ fontSize: 15, color: "var(--color-text-muted)", marginTop: 6 }}>
