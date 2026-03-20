@@ -5,6 +5,8 @@ import { eq, and, desc } from "drizzle-orm";
 
 import { db } from "@/server/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   // Auth check
   const supabase = await createServerClient();
