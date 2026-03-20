@@ -1,9 +1,8 @@
 "use client";
 
 import { trpc } from "@/lib/trpc/client";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, CalendarDays, List } from "lucide-react";
 import { useState } from "react";
-import Link from "next/link";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -252,6 +251,7 @@ export default function CalendarPage() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<"calendar" | "list">("calendar");
 
   // Fetch ALL tasks (both todo and done) so we can filter by dueDate client-side
   const { data: todoTasks } = trpc.tasks.list.useQuery({ status: "todo" });
@@ -331,28 +331,131 @@ export default function CalendarPage() {
           <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Calendar</h1>
           <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>Tasks due by date</p>
         </div>
-        <Link
-          href="/tasks"
-          style={{
-            fontSize: 13, fontWeight: 500, color: "var(--color-text-muted)",
-            textDecoration: "none", border: "1px solid var(--color-border)",
-            borderRadius: 8, padding: "7px 14px", transition: "all 0.15s",
-          }}
-          onMouseEnter={(e) => {
-            (e.currentTarget as HTMLElement).style.color = "var(--color-accent)";
-            (e.currentTarget as HTMLElement).style.borderColor = "var(--color-accent)";
-          }}
-          onMouseLeave={(e) => {
-            (e.currentTarget as HTMLElement).style.color = "var(--color-text-muted)";
-            (e.currentTarget as HTMLElement).style.borderColor = "var(--color-border)";
-          }}
-        >
-          List view
-        </Link>
+        <div style={{ display: "flex", gap: 4, border: "1px solid var(--color-border)", borderRadius: 8, padding: 3 }}>
+          <button
+            type="button"
+            onClick={() => setViewMode("calendar")}
+            title="Calendar view"
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              fontSize: 13, fontWeight: 500, padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: viewMode === "calendar" ? "var(--color-surface-2)" : "transparent",
+              color: viewMode === "calendar" ? "var(--color-text)" : "var(--color-text-muted)",
+              transition: "all 0.15s",
+            }}
+          >
+            <CalendarDays size={14} /> Calendar
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("list")}
+            title="List view"
+            style={{
+              display: "flex", alignItems: "center", gap: 6,
+              fontSize: 13, fontWeight: 500, padding: "5px 12px", borderRadius: 6, border: "none", cursor: "pointer",
+              background: viewMode === "list" ? "var(--color-surface-2)" : "transparent",
+              color: viewMode === "list" ? "var(--color-text)" : "var(--color-text-muted)",
+              transition: "all 0.15s",
+            }}
+          >
+            <List size={14} /> List
+          </button>
+        </div>
       </div>
 
+      {/* List view */}
+      {viewMode === "list" && (() => {
+        const upcoming = allTasks
+          .filter((t) => t.dueDate)
+          .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime());
+        const noDue = allTasks.filter((t) => !t.dueDate && t.status !== "done");
+        const grouped = new Map<string, TaskRow[]>();
+        for (const t of upcoming) {
+          const key = isoDate(t.dueDate!);
+          if (!grouped.has(key)) grouped.set(key, []);
+          grouped.get(key)!.push(t);
+        }
+        if (upcoming.length === 0 && noDue.length === 0) {
+          return (
+            <div style={{ textAlign: "center", padding: "60px 0", color: "var(--color-text-muted)", fontSize: 14 }}>
+              No tasks yet. Create tasks with due dates to see them here.
+            </div>
+          );
+        }
+        return (
+          <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+            {Array.from(grouped.entries()).map(([dateKey, tasks]) => {
+              const dt = new Date(dateKey + "T12:00:00");
+              const isToday = dateKey === isoDate(today);
+              const isPast = dt < today && !isToday;
+              const label = isToday
+                ? "Today"
+                : dt.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+              return (
+                <div key={dateKey}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <span style={{
+                      fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em",
+                      color: isToday ? "var(--color-accent)" : isPast ? "#ef4444" : "var(--color-text-muted)",
+                    }}>
+                      {label}
+                    </span>
+                    <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                    {tasks.map((task) => (
+                      <div key={task.id} style={{
+                        display: "flex", alignItems: "center", gap: 12,
+                        background: "var(--color-surface)", border: "1px solid var(--color-border)",
+                        borderRadius: 10, padding: "10px 14px",
+                      }}>
+                        <div style={{
+                          width: 8, height: 8, borderRadius: "50%", flexShrink: 0,
+                          background: PRIORITY_CHIP[task.priority]?.color ?? "var(--color-text-muted)",
+                        }} />
+                        <span style={{
+                          flex: 1, fontSize: 13, fontWeight: 500,
+                          color: task.status === "done" ? "var(--color-text-muted)" : "var(--color-text)",
+                          textDecoration: task.status === "done" ? "line-through" : "none",
+                        }}>{task.title}</span>
+                        <span style={{
+                          fontSize: 11, padding: "2px 8px", borderRadius: 4,
+                          background: PRIORITY_CHIP[task.priority]?.bg ?? "transparent",
+                          color: PRIORITY_CHIP[task.priority]?.color ?? "var(--color-text-muted)",
+                        }}>{task.priority}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {noDue.length > 0 && (
+              <div>
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--color-text-muted)" }}>No due date</span>
+                  <div style={{ flex: 1, height: 1, background: "var(--color-border)" }} />
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {noDue.map((task) => (
+                    <div key={task.id} style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      background: "var(--color-surface)", border: "1px solid var(--color-border)",
+                      borderRadius: 10, padding: "10px 14px",
+                    }}>
+                      <div style={{ width: 8, height: 8, borderRadius: "50%", flexShrink: 0, background: PRIORITY_CHIP[task.priority]?.color ?? "var(--color-text-muted)" }} />
+                      <span style={{ flex: 1, fontSize: 13, fontWeight: 500 }}>{task.title}</span>
+                      <span style={{ fontSize: 11, padding: "2px 8px", borderRadius: 4, background: PRIORITY_CHIP[task.priority]?.bg ?? "transparent", color: PRIORITY_CHIP[task.priority]?.color ?? "var(--color-text-muted)" }}>{task.priority}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
       {/* Month navigation */}
-      <div style={{
+      {viewMode === "calendar" && <div style={{
         display: "flex", alignItems: "center", gap: 12,
         background: "var(--color-surface)", border: "1px solid var(--color-border)",
         borderRadius: 12, padding: "12px 16px",
@@ -413,7 +516,7 @@ export default function CalendarPage() {
       </div>
 
       {/* Day-of-week headers */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+      {viewMode === "calendar" && <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
         {DAY_LABELS.map((label) => (
           <div
             key={label}
@@ -426,10 +529,10 @@ export default function CalendarPage() {
             {label}
           </div>
         ))}
-      </div>
+      </div>}
 
       {/* Calendar grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
+      {viewMode === "calendar" && <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
         {cells.map((cell, i) => {
           const key = cellKey(cell);
           const tasks = tasksByDate.get(key) ?? [];
@@ -445,10 +548,10 @@ export default function CalendarPage() {
             />
           );
         })}
-      </div>
+      </div>}
 
       {/* Day side panel */}
-      {selectedDate && (
+      {viewMode === "calendar" && selectedDate && (
         <DayPanel
           date={selectedDate}
           tasks={panelTasks}
