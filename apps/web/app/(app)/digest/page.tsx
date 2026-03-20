@@ -17,15 +17,15 @@ export default function DigestPage() {
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 32 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Daily Digest</h1>
+          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Daily Digest</h1>
           <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>
             AI-synthesized overview of your notes, open loops, and what matters today.
           </p>
         </div>
         <button onClick={handleGenerate} disabled={generate.isPending}
-          style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, border: "none", cursor: "pointer", background: "var(--color-accent)", color: "white", fontSize: 14, fontWeight: 500, opacity: generate.isPending ? 0.7 : 1 }}>
+          style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 20px", borderRadius: 10, border: "none", cursor: generate.isPending ? "not-allowed" : "pointer", background: "var(--color-accent)", color: "white", fontSize: 14, fontWeight: 500, opacity: generate.isPending ? 0.7 : 1, flexShrink: 0, whiteSpace: "nowrap" }}>
           {generate.isPending
             ? <><Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> Generating...</>
             : digest
