@@ -117,7 +117,7 @@ export default async function SharedNotePage({
         }}
       >
         <img
-          src="/logo-dark.png?v=1"
+          src="/logo-dark.png?v=2"
           alt="Second Brain logo"
           style={{ width: 18, height: 18, borderRadius: 4, objectFit: "cover" }}
         />
@@ -338,7 +338,7 @@ export default async function SharedNotePage({
           }}
         >
           <img
-            src="/logo-dark.png?v=1"
+            src="/logo-dark.png?v=2"
             alt="Second Brain logo"
             style={{ width: 13, height: 13, borderRadius: 3, objectFit: "cover" }}
           />

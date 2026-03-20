@@ -28,7 +28,7 @@ export function TopBar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
       : `${profile.avatarUrl}${profile.avatarUrl.includes("?") ? "&" : "?"}v=${new Date(profile.updatedAt).getTime()}`
     : "";
 
-  const brandLogoSrc = isDark ? "/logo-dark.png?v=1" : "/logo.png?v=4";
+  const brandLogoSrc = isDark ? "/logo-dark.png?v=2" : "/logo.png?v=4";
 
   return (
     <header style={{

@@ -22,7 +22,7 @@ export default function LoginPage() {
     (theme === "system" &&
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-color-scheme: dark)").matches);
-  const brandLogoSrc = isDark ? "/logo-dark.png?v=1" : "/logo.png?v=4";
+  const brandLogoSrc = isDark ? "/logo-dark.png?v=2" : "/logo.png?v=4";
 
   async function handleLogin() {
     if (!email.trim()) return;
