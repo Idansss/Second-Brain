@@ -2,8 +2,47 @@ import { z } from "zod";
 import { router, publicProcedure, protectedProcedure } from "../trpc";
 import { notes, userProfiles } from "@repo/db";
 import { eq, and, desc } from "drizzle-orm";
+import { createClient } from "@supabase/supabase-js";
 
 import { db } from "../db";
+
+function getAdminClient() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return null;
+  return createClient(url, key, { auth: { autoRefreshToken: false, persistSession: false } });
+}
+
+async function sendInviteEmail(toEmail: string, inviterEmail: string, inviteLink: string, token: string) {
+  const admin = getAdminClient();
+  if (!admin) return false;
+
+  // Use Supabase admin to send a custom email via the auth flow
+  const html = `
+    <div style="font-family:sans-serif;max-width:480px;margin:0 auto;padding:32px 24px">
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:8px">You're invited to Second Brain</h2>
+      <p style="color:#6b7280;font-size:15px;line-height:1.6;margin-bottom:24px">
+        <strong>${inviterEmail}</strong> has invited you to connect on Second Brain — an AI-powered knowledge management app.
+      </p>
+      <a href="${inviteLink}" style="display:inline-block;background:#6366f1;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;margin-bottom:24px">
+        Accept Invite
+      </a>
+      <p style="color:#9ca3af;font-size:13px;margin-top:16px">
+        Or paste this token manually on the Shared Brain page:<br/>
+        <code style="background:#f3f4f6;padding:4px 8px;border-radius:4px;font-size:13px">${token}</code>
+      </p>
+      <hr style="border:none;border-top:1px solid #e5e7eb;margin:24px 0"/>
+      <p style="color:#9ca3af;font-size:12px">Second Brain · Your AI knowledge layer</p>
+    </div>
+  `;
+
+  // Use Supabase's auth admin to send email via their email system
+  const { error } = await admin.auth.admin.inviteUserByEmail(toEmail, {
+    redirectTo: inviteLink,
+    data: { invite_token: token, inviter: inviterEmail, custom_email_html: html },
+  });
+  return !error;
+}
 
 function generateToken(length = 8): string {
   const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -104,7 +143,12 @@ export const sharingRouter = router({
         })
         .where(eq(userProfiles.id, ctx.user.id));
 
-      return { token };
+      // Send email directly to invitee
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(".supabase.co", ".vercel.app") ?? "http://localhost:3000";
+      const inviteLink = `${appUrl}/shared-brain?accept=${token}`;
+      const emailSent = await sendInviteEmail(input.email, ctx.user.email ?? "someone", inviteLink, token);
+
+      return { token, emailSent, inviteLink };
     }),
 
   // ── Accept Invite ──────────────────────────────────────────────────────────

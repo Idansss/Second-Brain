@@ -104,6 +104,8 @@ export default function SharedBrainPage() {
   // Left column state
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteToken, setInviteToken] = useState<string | null>(null);
+  const [inviteEmailSent, setInviteEmailSent] = useState(false);
+  const [invitedTo, setInvitedTo] = useState("");
   const [acceptToken, setAcceptToken] = useState("");
   const [acceptError, setAcceptError] = useState<string | null>(null);
   const [acceptSuccess, setAcceptSuccess] = useState<string | null>(null);
@@ -120,6 +122,8 @@ export default function SharedBrainPage() {
   const inviteMutation = trpc.sharing.inviteCollaborator.useMutation({
     onSuccess: (data) => {
       setInviteToken(data.token);
+      setInviteEmailSent(data.emailSent ?? false);
+      setInvitedTo(inviteEmail);
       setInviteEmail("");
     },
   });
@@ -277,111 +281,66 @@ export default function SharedBrainPage() {
           >
             <span style={{ fontWeight: 600, fontSize: 14 }}>Invite Someone</span>
             <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5 }}>
-              Enter their email to generate an invite link. Send them the link — they paste the token to connect.
+              Enter their email — they&apos;ll receive an invite directly in their inbox.
             </p>
 
-            <div style={{ display: "flex", gap: 8 }}>
-              <input
-                type="email"
-                placeholder="friend@example.com"
-                value={inviteEmail}
-                onChange={(e) => setInviteEmail(e.target.value)}
-                style={{
-                  flex: 1,
-                  padding: "7px 10px",
-                  borderRadius: 8,
-                  border: "1px solid var(--color-border)",
-                  background: "var(--color-surface-2)",
-                  color: "var(--color-text)",
-                  fontSize: 13,
-                  outline: "none",
-                }}
-              />
-              <button
-                type="button"
-                disabled={!inviteEmail || inviteMutation.isPending}
-                onClick={() => inviteMutation.mutate({ email: inviteEmail })}
-                style={{
-                  padding: "7px 14px",
-                  borderRadius: 8,
-                  border: "none",
-                  background: "var(--color-accent)",
-                  color: "white",
-                  fontSize: 13,
-                  cursor: inviteEmail && !inviteMutation.isPending ? "pointer" : "not-allowed",
-                  opacity: inviteEmail && !inviteMutation.isPending ? 1 : 0.5,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 6,
-                  flexShrink: 0,
-                }}
-              >
-                {inviteMutation.isPending && (
-                  <Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} />
-                )}
-                Invite
-              </button>
-            </div>
-
-            {inviteMutation.error && (
-              <p style={{ fontSize: 12, color: "#ef4444" }}>{inviteMutation.error.message}</p>
-            )}
-
-            {/* Share link after invite */}
-            {inviteLink && (
-              <div
-                style={{
-                  background: "var(--color-surface-2)",
-                  borderRadius: 8,
-                  padding: 12,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                }}
-              >
-                <p style={{ fontSize: 12, color: "var(--color-text-muted)" }}>
-                  Share this link with your invitee:
+            {/* Success state */}
+            {inviteToken && inviteEmailSent ? (
+              <div style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.3)", borderRadius: 8, padding: 12 }}>
+                <p style={{ fontSize: 13, fontWeight: 600, color: "#16a34a", marginBottom: 4 }}>
+                  ✓ Invite sent to {invitedTo}
                 </p>
+                <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5 }}>
+                  They&apos;ll receive an email with a link to connect.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setInviteToken(null); setInviteEmailSent(false); }}
+                  style={{ marginTop: 8, fontSize: 12, background: "none", border: "none", color: "var(--color-accent)", cursor: "pointer", padding: 0 }}
+                >
+                  Invite another person
+                </button>
+              </div>
+            ) : inviteToken && !inviteEmailSent ? (
+              /* Fallback: email couldn't be sent, show manual link */
+              <div style={{ background: "var(--color-surface-2)", borderRadius: 8, padding: 12, display: "flex", flexDirection: "column", gap: 8 }}>
+                <p style={{ fontSize: 12, color: "#f59e0b" }}>⚠ Email could not be sent automatically. Share this link manually:</p>
                 <div style={{ display: "flex", gap: 6 }}>
-                  <code
-                    style={{
-                      fontSize: 11,
-                      background: "var(--color-surface)",
-                      border: "1px solid var(--color-border)",
-                      borderRadius: 6,
-                      padding: "4px 8px",
-                      flex: 1,
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                      color: "var(--color-text)",
-                    }}
-                  >
+                  <code style={{ fontSize: 11, background: "var(--color-surface)", border: "1px solid var(--color-border)", borderRadius: 6, padding: "4px 8px", flex: 1, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--color-text)" }}>
                     {inviteLink}
                   </code>
-                  <button
-                    type="button"
-                    onClick={handleCopy}
-                    title="Copy link"
-                    style={{
-                      padding: "4px 8px",
-                      borderRadius: 6,
-                      border: "1px solid var(--color-border)",
-                      background: "transparent",
-                      color: copied ? "var(--color-accent)" : "var(--color-text-muted)",
-                      cursor: "pointer",
-                      display: "flex",
-                      alignItems: "center",
-                      flexShrink: 0,
-                    }}
-                  >
+                  <button type="button" onClick={handleCopy} title="Copy link" style={{ padding: "4px 8px", borderRadius: 6, border: "1px solid var(--color-border)", background: "transparent", color: copied ? "var(--color-accent)" : "var(--color-text-muted)", cursor: "pointer", display: "flex", alignItems: "center", flexShrink: 0 }}>
                     {copied ? <Check size={13} /> : <Copy size={13} />}
                   </button>
                 </div>
-                <p style={{ fontSize: 11, color: "var(--color-text-muted)" }}>
-                  Token: <code style={{ fontFamily: "monospace" }}>{inviteToken}</code>
-                </p>
+                <p style={{ fontSize: 11, color: "var(--color-text-muted)" }}>Token: <code>{inviteToken}</code></p>
+                <button type="button" onClick={() => setInviteToken(null)} style={{ fontSize: 12, background: "none", border: "none", color: "var(--color-accent)", cursor: "pointer", padding: 0, textAlign: "left" }}>Invite another</button>
               </div>
+            ) : (
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="email"
+                  placeholder="friend@example.com"
+                  value={inviteEmail}
+                  onChange={(e) => setInviteEmail(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && inviteEmail && inviteMutation.mutate({ email: inviteEmail })}
+                  style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid var(--color-border)", background: "var(--color-surface-2)", color: "var(--color-text)", fontSize: 13, outline: "none" }}
+                />
+                <button
+                  type="button"
+                  disabled={!inviteEmail || inviteMutation.isPending}
+                  onClick={() => inviteMutation.mutate({ email: inviteEmail })}
+                  style={{ padding: "7px 14px", borderRadius: 8, border: "none", background: "var(--color-accent)", color: "white", fontSize: 13, cursor: inviteEmail && !inviteMutation.isPending ? "pointer" : "not-allowed", opacity: inviteEmail && !inviteMutation.isPending ? 1 : 0.5, display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}
+                >
+                  {inviteMutation.isPending
+                    ? <><Loader2 size={12} style={{ animation: "spin 1s linear infinite" }} /> Sending...</>
+                    : "Send invite"}
+                </button>
+              </div>
+            )}
+
+            {inviteMutation.error && (
+              <p style={{ fontSize: 12, color: "#ef4444" }}>{inviteMutation.error.message}</p>
             )}
           </section>
 
