@@ -1,0 +1,241 @@
+.pane {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  height: 100%;
+}
+
+/* ── Search bar ───────────────────────────────────────────────────── */
+
+.searchRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.inputWrap {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 14px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--color-accent);
+}
+
+.searchBtn {
+  padding: 0 16px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: var(--color-accent);
+  color: white;
+  font-size: 14px;
+  font-family: inherit;
+  font-weight: 500;
+  transition: opacity 0.15s;
+}
+
+.searchBtn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ── Active filter summary ────────────────────────────────────────── */
+
+.filterSummary {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  padding-bottom: 8px;
+}
+
+/* ── Results area ─────────────────────────────────────────────────── */
+
+.results {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 4px;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 280px;
+  gap: 10px;
+  color: var(--color-text-muted);
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.emptySubtitle {
+  font-size: 13px;
+  text-align: center;
+  max-width: 300px;
+}
+
+.loadingRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+.noResults {
+  padding: 32px 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.noResultsHint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.resultList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── Keyword divider ─────────────────────────────────────────────── */
+
+.kwDivider {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0;
+}
+
+.kwLine {
+  flex: 1;
+  height: 1px;
+  background: var(--color-border);
+}
+
+.kwLabel {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* ── ResultCard ──────────────────────────────────────────────────── */
+
+.card {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s;
+  cursor: default;
+}
+
+.card:hover {
+  border-color: var(--color-accent);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.cardTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.keywordBadge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-text-muted) 12%, var(--color-surface));
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  letter-spacing: 0.03em;
+}
+
+.cardDate {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.cardSnippet {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardUrl {
+  font-size: 11px;
+  color: var(--color-accent);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  animation: spin 1s linear infinite;
+}

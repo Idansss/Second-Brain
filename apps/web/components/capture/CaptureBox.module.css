@@ -1,0 +1,77 @@
+/* Voice tab – new styles added for Web Speech API UI */
+
+.voiceUnsupported {
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.recordBtn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.recordBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.recordBtn[data-recording="true"] {
+  background: #ef4444;
+  box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.15);
+}
+
+.recordBtn[data-recording="false"] {
+  background: var(--color-accent);
+  box-shadow: none;
+}
+
+.recordLabel {
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.liveTranscript {
+  width: 100%;
+  min-height: 60px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.liveTranscript[data-listening="true"] {
+  color: var(--color-text);
+  font-style: normal;
+}
+
+.liveTranscript[data-listening="false"] {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+.voiceTextarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  resize: none;
+  color: var(--color-text);
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: inherit;
+}

@@ -1,0 +1,82 @@
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+}
+
+.group {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.tagsGroup {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.divider {
+  width: 1px;
+  height: 20px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ── Chip ─────────────────────────────────────────────────────────── */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 400;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.chipActive {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 15%, var(--color-surface));
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.chipRemove {
+  display: flex;
+  align-items: center;
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+/* ── Clear all ────────────────────────────────────────────────────── */
+
+.clearAll {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: color 0.15s;
+}
+
+.clearAll:hover {
+  color: var(--color-text);
+}

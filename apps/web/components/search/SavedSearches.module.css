@@ -1,0 +1,133 @@
+/* ── SaveSearchButton ─────────────────────────────────────────────── */
+
+.saveBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  cursor: pointer;
+  color: var(--color-text-muted);
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.saveBtnActive {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 15%, var(--color-surface));
+  color: var(--color-accent);
+}
+
+.saveBtn:not(.saveBtnActive):hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--color-accent);
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 1px 4px;
+  min-width: 14px;
+  text-align: center;
+  line-height: 14px;
+}
+
+/* ── SavedSearchesPanel ───────────────────────────────────────────── */
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.panelLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.itemList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── SavedSearchItem ──────────────────────────────────────────────── */
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-2);
+  transition: border-color 0.15s;
+}
+
+.item:hover {
+  border-color: var(--color-accent);
+}
+
+.itemBtn {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+  font-family: inherit;
+}
+
+.itemQuery {
+  font-size: 13px;
+  color: var(--color-text);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemSummary {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.deleteBtn {
+  display: flex;
+  align-items: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 2px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s;
+}
+
+.deleteBtn:hover {
+  color: var(--color-text);
+}
