@@ -513,7 +513,7 @@ export default function CalendarPage() {
         >
           <ChevronRight size={18} />
         </button>
-      </div>
+      </div>}
 
       {/* Day-of-week headers */}
       {viewMode === "calendar" && <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4 }}>
