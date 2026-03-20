@@ -173,13 +173,13 @@ export default function ChatPage() {
         },
       ]);
     },
-    onError: () => {
+    onError: (err) => {
       setMessages((prev) => [
         ...prev,
         {
           id: crypto.randomUUID(),
           role: "assistant",
-          content: "Sorry, I ran into an error. Please try again.",
+          content: `Error: ${err.message}`,
         },
       ]);
     },

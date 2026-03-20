@@ -180,29 +180,43 @@ Return only valid JSON, no markdown.`,
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // Embed the user message to find relevant notes
-      const embedding = await embedText(input.message);
-      const embeddingStr = `[${embedding.join(",")}]`;
+      let relatedNotes: Array<{
+        id: string; content: string; source_title: string | null;
+        created_at: string; type: string; score: number;
+      }> = [];
 
-      const results = await db.execute(sql`
-        SELECT id, content, source_title, created_at, type,
-               1 - (embedding <=> ${embeddingStr}::vector) AS score
-        FROM notes
-        WHERE user_id = ${ctx.user.id}
-          AND status = 'active'
-          AND embedding IS NOT NULL
-        ORDER BY embedding <=> ${embeddingStr}::vector
-        LIMIT 6
-      `);
+      // Try vector search; fall back to recent notes if embeddings unavailable
+      try {
+        const embedding = await embedText(input.message);
+        const embeddingStr = `[${embedding.join(",")}]`;
+        const results = await db.execute(sql`
+          SELECT id, content, source_title, created_at, type,
+                 1 - (embedding <=> ${embeddingStr}::vector) AS score
+          FROM notes
+          WHERE user_id = ${ctx.user.id}
+            AND status = 'active'
+            AND embedding IS NOT NULL
+          ORDER BY embedding <=> ${embeddingStr}::vector
+          LIMIT 6
+        `);
+        relatedNotes = results as unknown as typeof relatedNotes;
+      } catch {
+        // Embedding failed — fall back to most recent notes
+      }
 
-      const relatedNotes = results as unknown as Array<{
-        id: string;
-        content: string;
-        source_title: string | null;
-        created_at: string;
-        type: string;
-        score: number;
-      }>;
+      // If no vector results, use most recent notes as context
+      if (relatedNotes.length === 0) {
+        const recent = await db
+          .select({ id: notes.id, content: notes.content, sourceTitle: notes.sourceTitle, createdAt: notes.createdAt, type: notes.type })
+          .from(notes)
+          .where(and(eq(notes.userId, ctx.user.id), eq(notes.status, "active")))
+          .orderBy(desc(notes.createdAt))
+          .limit(8);
+        relatedNotes = recent.map((n) => ({
+          id: n.id, content: n.content, source_title: n.sourceTitle,
+          created_at: n.createdAt.toISOString(), type: n.type, score: 1,
+        }));
+      }
 
       const notesContext =
         relatedNotes.length > 0
