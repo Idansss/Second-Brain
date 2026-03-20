@@ -41,15 +41,25 @@ const parsed = serverEnvSchema.safeParse({
   DATABASE_URL: process.env.DATABASE_URL,
 });
 
+// During some CI/build environments (e.g. Vercel build), env vars may not be
+// forwarded to the build step. We should not hard-crash during module import;
+// instead, fail only when the DB is actually used.
+let serverEnvValue: { DATABASE_URL: string };
 if (!parsed.success) {
-  const first = parsed.error.issues[0];
-  throw new Error(
-    formatEnvErrorMessage(
-      `${first?.path?.join(".") || "env"}: ${first?.message || "Invalid value"}`,
-      process.env.DATABASE_URL
-    )
-  );
+  if (!process.env.DATABASE_URL) {
+    serverEnvValue = { DATABASE_URL: "" };
+  } else {
+    const first = parsed.error.issues[0];
+    throw new Error(
+      formatEnvErrorMessage(
+        `${first?.path?.join(".") || "env"}: ${first?.message || "Invalid value"}`,
+        process.env.DATABASE_URL
+      )
+    );
+  }
+} else {
+  serverEnvValue = parsed.data;
 }
 
-export const serverEnv = parsed.data;
+export const serverEnv = serverEnvValue;
 
