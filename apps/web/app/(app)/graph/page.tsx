@@ -89,11 +89,24 @@ export default function GraphPage() {
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "24px 28px 16px" }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Relationship Graph</h1>
-          <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>
-            {entities.length} entities · Nodes sized by note count · Click a node to explore
-          </p>
+        <div style={{ padding: "24px 28px 16px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div>
+            <h1 style={{ fontSize: 22, fontWeight: 700, marginBottom: 4 }}>Relationship Graph</h1>
+            <p style={{ fontSize: 14, color: "var(--color-text-muted)" }}>
+              {entities.length} entities · Nodes sized by note count · Click a node to explore
+            </p>
+          </div>
+          {/* Legend — moved to header so it's always visible */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 10, alignItems: "center", paddingTop: 4 }}>
+            {Object.entries(NODE_COLOR)
+              .filter(([k]) => k !== "other" && k !== "place")
+              .map(([type, color]) => (
+                <div key={type} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "var(--color-text-muted)" }}>
+                  <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block", flexShrink: 0 }} aria-hidden="true" />
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </div>
+              ))}
+          </div>
         </div>
 
         {isLoading ? (
@@ -189,17 +202,6 @@ export default function GraphPage() {
           </div>
         )}
 
-        {/* Legend */}
-        <div style={{ padding: "0 28px 20px", display: "flex", flexWrap: "wrap", gap: 12 }}>
-          {Object.entries(NODE_COLOR)
-            .filter(([k]) => k !== "other" && k !== "place")
-            .map(([type, color]) => (
-              <div key={type} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, color: "var(--color-text-muted)" }}>
-                <span style={{ width: 10, height: 10, borderRadius: "50%", background: color, display: "inline-block" }} aria-hidden="true" />
-                {type.charAt(0).toUpperCase() + type.slice(1)}
-              </div>
-            ))}
-        </div>
       </div>
 
       {/* Side panel — 1/3 */}
