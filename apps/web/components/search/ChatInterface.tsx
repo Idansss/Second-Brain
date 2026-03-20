@@ -29,11 +29,20 @@ export function ChatInterface({ onSearch, pendingQuery }: ChatInterfaceProps) {
         ...prev,
         {
           role: "assistant",
-          content: data.answer,
+          content: data.answer || "I couldn't find relevant notes to answer that. Try capturing some notes first.",
           sources: data.sources.map((s) => ({
             ...s,
             createdAt: new Date(s.createdAt),
           })),
+        },
+      ]);
+    },
+    onError: (err) => {
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `Something went wrong: ${err.message}`,
         },
       ]);
     },
