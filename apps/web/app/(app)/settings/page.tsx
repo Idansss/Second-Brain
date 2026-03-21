@@ -2,7 +2,7 @@
 
 import { trpc } from "@/lib/trpc/client";
 import { useTheme } from "@/app/providers";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Save,
   Loader2,
@@ -19,10 +19,141 @@ import {
   Plus,
   X,
   AlertTriangle,
+  ChevronDown,
+  Search,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useIsMobile } from "@/hooks/useIsMobile";
+
+// ── Custom Select ─────────────────────────────────────────────────────────────
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  searchable = false,
+  width = 180,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  searchable?: boolean;
+  width?: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const selected = options.find((o) => o.value === value);
+  const filtered = searchable && search
+    ? options.filter((o) => o.label.toLowerCase().includes(search.toLowerCase()))
+    : options;
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: "relative", width }}>
+      {/* Trigger */}
+      <button
+        type="button"
+        onClick={() => { setOpen((o) => !o); setSearch(""); }}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 6,
+          padding: "7px 10px",
+          borderRadius: 8,
+          border: "1px solid var(--color-border)",
+          background: "var(--color-surface-2)",
+          color: "var(--color-text)",
+          fontSize: 13,
+          cursor: "pointer",
+          outline: "none",
+          transition: "border-color 0.15s",
+        }}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--color-accent)")}
+        onMouseLeave={(e) => !open && (e.currentTarget.style.borderColor = "var(--color-border)")}
+      >
+        <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          {selected?.label ?? value}
+        </span>
+        <ChevronDown size={13} color="var(--color-text-muted)" style={{ flexShrink: 0, transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s" }} />
+      </button>
+
+      {/* Dropdown */}
+      {open && (
+        <div style={{
+          position: "absolute",
+          top: "calc(100% + 4px)",
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          background: "var(--color-surface)",
+          border: "1px solid var(--color-border)",
+          borderRadius: 10,
+          boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+          overflow: "hidden",
+          minWidth: width,
+        }}>
+          {searchable && (
+            <div style={{ padding: "8px 8px 4px", borderBottom: "1px solid var(--color-border)" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6, background: "var(--color-surface-2)", borderRadius: 6, padding: "5px 8px" }}>
+                <Search size={12} color="var(--color-text-muted)" />
+                <input
+                  autoFocus
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search..."
+                  style={{ background: "transparent", border: "none", outline: "none", fontSize: 13, color: "var(--color-text)", width: "100%" }}
+                />
+              </div>
+            </div>
+          )}
+          <div style={{ maxHeight: 220, overflowY: "auto" }}>
+            {filtered.length === 0 && (
+              <p style={{ fontSize: 13, color: "var(--color-text-muted)", padding: "10px 12px" }}>No results</p>
+            )}
+            {filtered.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                onClick={() => { onChange(o.value); setOpen(false); setSearch(""); }}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  textAlign: "left",
+                  padding: "8px 12px",
+                  fontSize: 13,
+                  background: o.value === value ? "var(--color-accent)" : "transparent",
+                  color: o.value === value ? "white" : "var(--color-text)",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background 0.1s",
+                }}
+                onMouseEnter={(e) => { if (o.value !== value) (e.currentTarget as HTMLElement).style.background = "var(--color-surface-2)"; }}
+                onMouseLeave={(e) => { if (o.value !== value) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 const TIMEZONES = Intl.supportedValuesOf("timeZone");
 
@@ -36,38 +167,7 @@ const WEBHOOK_EVENTS = [
 
 type WebhookEvent = (typeof WEBHOOK_EVENTS)[number]["value"];
 
-// ── Shared element helpers (same as before) ───────────────────────────────────
-
-function selectEl(
-  value: string,
-  onChange: (v: string) => void,
-  options: { value: string; label: string }[],
-  label?: string
-) {
-  return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      title={label ?? options.find((o) => o.value === value)?.label}
-      style={{
-        background: "var(--color-surface-2)",
-        border: "1px solid var(--color-border)",
-        borderRadius: 8,
-        padding: "6px 10px",
-        color: "var(--color-text)",
-        fontSize: 13,
-        cursor: "pointer",
-        outline: "none",
-      }}
-    >
-      {options.map((o) => (
-        <option key={o.value} value={o.value}>
-          {o.label}
-        </option>
-      ))}
-    </select>
-  );
-}
+// ── Shared element helpers ────────────────────────────────────────────────────
 
 function toggleEl(
   value: boolean,
@@ -911,15 +1011,15 @@ export default function SettingsPage() {
           fieldEl(
             "Proactivity level",
             "How often the AI surfaces relevant notes",
-            selectEl(
-              proactivity,
-              (v) => setProactivity(v as typeof proactivity),
-              [
+            <CustomSelect
+              value={proactivity}
+              onChange={(v) => setProactivity(v as typeof proactivity)}
+              options={[
                 { value: "quiet", label: "Quiet" },
                 { value: "normal", label: "Normal" },
                 { value: "active", label: "Active" },
-              ]
-            )
+              ]}
+            />
           )
         )}
 
@@ -929,18 +1029,18 @@ export default function SettingsPage() {
           fieldEl(
             "Theme",
             "Color theme for the app",
-            selectEl(
-              theme,
-              (v) => {
+            <CustomSelect
+              value={theme}
+              onChange={(v) => {
                 setTheme(v as typeof theme);
                 applyThemeNow(v as typeof theme);
-              },
-              [
+              }}
+              options={[
                 { value: "dark", label: "Dark" },
                 { value: "light", label: "Light" },
                 { value: "system", label: "System" },
-              ]
-            )
+              ]}
+            />
           )
         )}
       </div>
@@ -981,28 +1081,13 @@ export default function SettingsPage() {
             {fieldEl(
               "Timezone",
               "Your local timezone",
-              <select
-                title="Timezone"
+              <CustomSelect
                 value={timezone}
-                onChange={(e) => setTimezone(e.target.value)}
-                style={{
-                  background: "var(--color-surface-2)",
-                  border: "1px solid var(--color-border)",
-                  borderRadius: 8,
-                  padding: "6px 10px",
-                  color: "var(--color-text)",
-                  fontSize: 13,
-                  cursor: "pointer",
-                  outline: "none",
-                  maxWidth: 180,
-                }}
-              >
-                {TIMEZONES.map((tz) => (
-                  <option key={tz} value={tz}>
-                    {tz}
-                  </option>
-                ))}
-              </select>
+                onChange={setTimezone}
+                options={TIMEZONES.map((tz) => ({ value: tz, label: tz }))}
+                searchable
+                width={200}
+              />
             )}
           </>
         )}
