@@ -91,3 +91,17 @@ body {
     width: 100% !important;
   }
 }
+
+/* Login page responsive */
+@media (max-width: 768px) {
+  .login-left-panel {
+    display: none !important;
+  }
+  .login-right-panel {
+    width: 100% !important;
+    padding: 40px 24px !important;
+  }
+  .login-mobile-header {
+    display: block !important;
+  }
+}

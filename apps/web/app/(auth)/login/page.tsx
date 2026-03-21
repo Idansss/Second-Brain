@@ -42,7 +42,7 @@ export default function LoginPage() {
       background: "var(--color-background)",
       fontFamily: "inherit",
     }}>
-      {/* Left panel — branding */}
+      {/* Left panel — branding (hidden on mobile) */}
       <div style={{
         flex: 1,
         display: "flex",
@@ -52,7 +52,9 @@ export default function LoginPage() {
         background: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)",
         position: "relative",
         overflow: "hidden",
-      }}>
+      }}
+        className="login-left-panel"
+      >
         {/* Decorative blobs */}
         <div style={{
           position: "absolute", top: -80, right: -80,
@@ -126,7 +128,27 @@ export default function LoginPage() {
         alignItems: "center",
         padding: "60px 48px",
         background: "var(--color-surface)",
-      }}>
+      }}
+        className="login-right-panel"
+      >
+        {/* Mobile-only compact branding header */}
+        <div className="login-mobile-header" style={{ width: "100%", maxWidth: 360, marginBottom: 32, display: "none" }}>
+          <div style={{
+            padding: "20px 24px",
+            borderRadius: 14,
+            background: "linear-gradient(135deg, #1e1b4b 0%, #4338ca 100%)",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}>
+            <img src={brandLogoSrc} alt="Second Brain" style={{ width: 36, height: 24, objectFit: "contain" }} />
+            <div>
+              <p style={{ fontSize: 16, fontWeight: 700, color: "white", margin: 0 }}>Second Brain</p>
+              <p style={{ fontSize: 12, color: "rgba(255,255,255,0.7)", margin: 0 }}>Your mind, amplified by AI.</p>
+            </div>
+          </div>
+        </div>
+
         <div style={{ width: "100%", maxWidth: 360 }}>
           {sent ? (
             <div style={{ textAlign: "center" }}>
