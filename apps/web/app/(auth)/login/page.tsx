@@ -29,7 +29,7 @@ export default function LoginPage() {
     setLoading(true);
     await supabase.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: `${window.location.origin}/home` },
+      options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
     });
     setSent(true);
     setLoading(false);
