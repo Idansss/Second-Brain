@@ -6,6 +6,7 @@ import { TopBar } from "@/components/layout/TopBar";
 import { BottomNav } from "@/components/layout/BottomNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
+import { OnboardingModal } from "@/components/OnboardingModal";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -50,6 +51,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       {isMobile && <BottomNav />}
       <CommandPalette />
       <KeyboardShortcutsModal />
+      <OnboardingModal />
     </div>
   );
 }
