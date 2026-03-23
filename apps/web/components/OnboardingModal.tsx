@@ -43,15 +43,15 @@ const STORAGE_KEY = "onboarding_complete";
 
 export function OnboardingModal() {
   const router = useRouter();
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState<boolean | null>(null);
   const [step, setStep] = useState(0);
 
   useEffect(() => {
     try {
-      if (!localStorage.getItem(STORAGE_KEY)) {
-        setVisible(true);
-      }
-    } catch {}
+      setVisible(!localStorage.getItem(STORAGE_KEY));
+    } catch {
+      setVisible(false);
+    }
   }, []);
 
   function dismiss() {
@@ -68,7 +68,7 @@ export function OnboardingModal() {
     }
   }
 
-  if (!visible) return null;
+  if (!visible) return null; // null = not checked yet, false = already seen
 
   const current = STEPS[step]!;
   const isLast = step === STEPS.length - 1;
