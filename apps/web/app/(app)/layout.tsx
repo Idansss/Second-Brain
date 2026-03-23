@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { CommandPalette } from "@/components/CommandPalette";
 import { KeyboardShortcutsModal } from "@/components/KeyboardShortcutsModal";
 import { useIsMobile } from "@/hooks/useIsMobile";
@@ -37,6 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main style={{
           flex: 1,
           padding: isMobile ? "20px 16px" : "32px 40px",
+          paddingBottom: isMobile ? "84px" : undefined,
           overflowY: "auto",
           minWidth: 0,
           boxSizing: "border-box",
@@ -45,6 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      {isMobile && <BottomNav />}
       <CommandPalette />
       <KeyboardShortcutsModal />
     </div>

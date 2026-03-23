@@ -5,6 +5,7 @@ import { httpBatchLink } from "@trpc/client";
 import { useState, useEffect, createContext, useContext } from "react";
 import superjson from "superjson";
 import { trpc } from "@/lib/trpc/client";
+import { ToastProvider } from "@/components/Toast";
 
 // ---------------------------------------------------------------------------
 // Theme
@@ -97,7 +98,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <trpc.Provider client={trpcClient} queryClient={queryClient}>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider><ToastProvider>{children}</ToastProvider></ThemeProvider>
       </QueryClientProvider>
     </trpc.Provider>
   );

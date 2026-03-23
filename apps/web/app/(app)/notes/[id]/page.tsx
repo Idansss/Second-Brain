@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow, format } from "date-fns";
 import { useIsMobile } from "@/hooks/useIsMobile";
+import { MarkdownRenderer } from "@/components/notes/MarkdownRenderer";
 
 const typeIcons: Record<string, React.ElementType> = {
   text: FileText,
@@ -789,17 +790,7 @@ export default function NoteDetailPage() {
               </div>
             </>
           ) : (
-            <p
-              style={{
-                fontSize: 14,
-                color: "var(--color-text)",
-                lineHeight: 1.7,
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-              }}
-            >
-              {note.content}
-            </p>
+            <MarkdownRenderer content={note.content} />
           )}
         </div>
 
