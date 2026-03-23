@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { trpc } from "@/lib/trpc/client";
 import { NoteCard } from "@/components/notes/NoteCard";
+import { EmptyState } from "@/components/EmptyState";
 import {
   Loader2,
   Trash2,
@@ -630,19 +631,12 @@ export default function CollectionsPage() {
 
         {/* Empty state */}
         {!isLoading && !collections?.length && !showCreateForm && (
-          <div
-            style={{
-              textAlign: "center",
-              paddingTop: 40,
-              color: "var(--color-text-muted)",
-            }}
-          >
-            <FolderOpen size={32} style={{ marginBottom: 10, opacity: 0.4 }} />
-            <p style={{ fontSize: 14 }}>No collections yet.</p>
-            <p style={{ fontSize: 12, marginTop: 4 }}>
-              Create one to organise your notes.
-            </p>
-          </div>
+          <EmptyState
+            icon="📁"
+            title="No collections yet"
+            description="Group your notes into collections to keep related ideas together — like folders for your thoughts."
+            action={{ label: "Create a collection", href: "/collections" }}
+          />
         )}
 
         {/* Collection tree */}

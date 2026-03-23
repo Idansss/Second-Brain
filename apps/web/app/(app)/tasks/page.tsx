@@ -9,6 +9,8 @@ import {
 import { useState, useEffect, useRef } from "react";
 import { PrioritySelect } from "@/components/ui/PrioritySelect";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { EmptyState } from "@/components/EmptyState";
+import { TaskRowSkeleton } from "@/components/Skeleton";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/useIsMobile";
 
@@ -501,7 +503,7 @@ function TaskRow({
 
 export default function TasksPage() {
   const isMobile = useIsMobile();
-  const { data: openTasksRaw } = trpc.tasks.list.useQuery({ status: "todo" });
+  const { data: openTasksRaw, isLoading: tasksLoading } = trpc.tasks.list.useQuery({ status: "todo" });
   const { data: doneTasks } = trpc.tasks.list.useQuery({ status: "done" });
   const utils = trpc.useUtils();
 
@@ -830,16 +832,22 @@ export default function TasksPage() {
           )}
         </div>
 
-        {/* Empty state */}
-        {!hasTasks && (
-          <div style={{
-            background: "var(--color-surface)", border: "1px solid var(--color-border)",
-            borderRadius: 12, padding: 32, textAlign: "center", color: "var(--color-text-muted)",
-          }}>
-            <CheckCircle2 size={32} style={{ margin: "0 auto 12px", opacity: 0.4 }} />
-            <p style={{ fontSize: 15, fontWeight: 500 }}>All clear!</p>
-            <p style={{ fontSize: 13, marginTop: 4 }}>No open tasks. Capture a note with action items to get started.</p>
+        {/* Skeleton loading */}
+        {tasksLoading && (
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {Array.from({ length: 5 }).map((_, i) => <TaskRowSkeleton key={i} />)}
           </div>
+        )}
+
+        {/* Empty state */}
+        {!tasksLoading && !hasTasks && (
+          <EmptyState
+            icon="✅"
+            title="No open tasks"
+            description="Tasks are auto-extracted from your notes, or you can add them manually. Capture a note with action items to get started."
+            action={{ label: "Capture a note", href: "/capture" }}
+            secondaryAction={{ label: "Add a task manually", href: "/tasks" }}
+          />
         )}
 
         {/* Task groups by priority */}

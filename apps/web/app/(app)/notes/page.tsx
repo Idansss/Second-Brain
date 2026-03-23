@@ -1,6 +1,8 @@
 "use client";
 import { trpc } from "@/lib/trpc/client";
 import { NoteCard } from "@/components/notes/NoteCard";
+import { EmptyState } from "@/components/EmptyState";
+import { NoteCardSkeleton } from "@/components/Skeleton";
 import { Loader2, CheckSquare, Square, Archive, Trash2, X, CalendarDays } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -257,19 +259,28 @@ export default function NotesPage() {
         </div>
       )}
 
-      {/* Loading spinner (first load only) */}
+      {/* Skeleton loading (first load only) */}
       {isLoading && offset === 0 && (
-        <div style={{ display: "flex", justifyContent: "center", paddingTop: 60 }}>
-          <Loader2 size={24} color="var(--color-text-muted)" style={{ animation: "spin 1s linear infinite" }} />
+        <div style={{ columns: "3 300px", gap: 12 }}>
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} style={{ breakInside: "avoid", marginBottom: 12 }}>
+              <NoteCardSkeleton />
+            </div>
+          ))}
         </div>
       )}
 
       {/* Empty state */}
       {!isLoading && allNotes.length === 0 && (
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, gap: 12, color: "var(--color-text-muted)", paddingTop: 60 }}>
-          <p style={{ fontSize: 15 }}>No notes yet.</p>
-          <a href="/capture" style={{ fontSize: 13, color: "var(--color-accent)", textDecoration: "none" }}>Start capturing →</a>
-        </div>
+        activeTag || activeType !== "all"
+          ? <EmptyState icon="🔍" title="No notes match" description="Try a different filter or clear the current selection." />
+          : <EmptyState
+              icon="📝"
+              title="Your notes live here"
+              description="Capture thoughts, links, voice memos, and ideas. They'll show up here, searchable and connected."
+              action={{ label: "Capture your first note", href: "/capture" }}
+              secondaryAction={{ label: "Learn what to capture", href: "/chat" }}
+            />
       )}
 
       {/* Pinned notes section */}
